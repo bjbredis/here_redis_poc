@@ -1,0 +1,55 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: default
+  name: redis-benchmark
+spec:
+  replicas: 1 # tells deployment to run 2 pods matching the template
+  template: # create pods using pod definition in this template
+    metadata:
+      labels:
+        app: redis-benchmark
+    spec:
+      #nodeSelector:
+      #cloud.google.com/gke-nodepool: default-pool
+      containers:
+      - name: benchmark
+        image: redislabs/memtier_benchmark
+        resources:
+          requests:
+            cpu: "1"
+            memory: "1024Mi"
+        env:
+         - name: REDIS_PORT
+           value: "10001"
+         - name: REDIS_SERVER
+           value: "pocdb1"
+         - name: MEMTIER_ARGS
+           value: " -d 60 -t 4 -c 25 --ratio=1:4 --pipeline=1 --key-pattern=S:S --hide-histogram -x 1000 "
+      - name: benchmark2
+        image: redislabs/memtier_benchmark
+        resources:
+          requests:
+            cpu: "1"
+            memory: "1024Mi"
+        env:
+         - name: REDIS_PORT
+           value: "10002"
+         - name: REDIS_SERVER
+           value: "pocdb2"
+         - name: MEMTIER_ARGS
+           value: " -d 60 -t 4 -c 25 --ratio=1:4 --pipeline=1 --key-pattern=S:S --hide-histogram -x 1000 "
+      - name: benchmark3
+        image: redislabs/memtier_benchmark
+        resources:
+          requests:
+            cpu: "1"
+            memory: "1024Mi"
+        env:
+         - name: REDIS_PORT
+           value: "10003"
+         - name: REDIS_SERVER
+           value: "pocdb3"
+         - name: MEMTIER_ARGS
+           value: " -d 60 -t 4 -c 25 --ratio=1:4 --pipeline=1 --key-pattern=S:S --hide-histogram -x 1000 "
+
