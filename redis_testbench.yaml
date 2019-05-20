@@ -1,10 +1,9 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  namespace: default
-  name: redis-benchmark
+  name: app-servers
 spec:
-  replicas: 1 # tells deployment to run 2 pods matching the template
+  replicas: 1 
   template: # create pods using pod definition in this template
     metadata:
       labels:
@@ -15,41 +14,18 @@ spec:
       containers:
       - name: benchmark
         image: redislabs/memtier_benchmark
+        args: ["-d", "10", "-n", "20000000", "--pipeline=2", "-a", "$(REDIS_PASSWORD)", "-s", "$(REDIS_SERVER)", "-p", "$(REDIS_PORT)"]
         resources:
+          limits:
+            cpu: "0.5"
+            memory: "250Mi"
           requests:
-            cpu: "1"
-            memory: "1024Mi"
+            cpu: "0.25"
+            memory: "128Mi"
         env:
          - name: REDIS_PORT
-           value: "10001"
+           value: "10098"   # redis port
          - name: REDIS_SERVER
-           value: "pocdb1"
-         - name: MEMTIER_ARGS
-           value: " -d 60 -t 4 -c 25 --ratio=1:4 --pipeline=1 --key-pattern=S:S --hide-histogram -x 1000 "
-      - name: benchmark2
-        image: redislabs/memtier_benchmark
-        resources:
-          requests:
-            cpu: "1"
-            memory: "1024Mi"
-        env:
-         - name: REDIS_PORT
-           value: "10002"
-         - name: REDIS_SERVER
-           value: "pocdb2"
-         - name: MEMTIER_ARGS
-           value: " -d 60 -t 4 -c 25 --ratio=1:4 --pipeline=1 --key-pattern=S:S --hide-histogram -x 1000 "
-      - name: benchmark3
-        image: redislabs/memtier_benchmark
-        resources:
-          requests:
-            cpu: "1"
-            memory: "1024Mi"
-        env:
-         - name: REDIS_PORT
-           value: "10003"
-         - name: REDIS_SERVER
-           value: "pocdb3"
-         - name: MEMTIER_ARGS
-           value: " -d 60 -t 4 -c 25 --ratio=1:4 --pipeline=1 --key-pattern=S:S --hide-histogram -x 1000 "
-
+           value: "redis-45614856-7755-11e9-98f8-0a580a800035"  # can be full hostname or just the resource name in k8s
+#         - name: REDIS_PASSWORD
+#           value: "ddd"
